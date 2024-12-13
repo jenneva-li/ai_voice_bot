@@ -1,5 +1,7 @@
 import asyncio
 import os
+import webbrowser
+import urllib.parse
 from groq import Groq
 from dotenv import load_dotenv
 from deepgram import (
@@ -50,39 +52,48 @@ async def process_with_groq(content):
             attempts -= 1
             await asyncio.sleep(1)
 
+def open_google():
+    webbrowser.open("https://www.google.com")
+
+def search_google(query):
+    search_url = f"https://www.google.com/search?q={urllib.parse.quote(query)}"
+    webbrowser.open(search_url)
+
+async def chat_response(self, result, **kwargs):
+    sentence = result.channel.alternatives[0].transcript
+
+    print (result)
+    
+    if not result.speech_final:
+        transcript_collector.add_part(sentence)
+    else:
+        transcript_collector.add_part(sentence)
+        full_sentence = transcript_collector.get_full_transcript()
+        print(f"speaker: {full_sentence}")
+        if "open google" in full_sentence.lower():
+                open_google()
+        elif "search" in full_sentence.lower():
+            search_query = full_sentence.lower().replace("search", "").strip()
+            search_google(search_query)
+        else:
+            content = full_sentence.strip()
+            await process_with_groq(content)
+        transcript_collector.reset()
+
 async def get_transcript():
-    transcription_complete = transcript_collector.transcription_complete
     try:
         config = DeepgramClientOptions(options={"keepalive": "true"})
         deepgram: DeepgramClient = DeepgramClient(DEEPGRAM_API_KEY, config)
-        
 
-        # dg_connection = deepgram.listen.asyncwebsocket.v("1")
         dg_connection = deepgram.listen.asynclive.v("1")
+        print(dg_connection)
         print ("Listening...")
 
-
-        async def on_message(self, result, **kwargs):
-            sentence = result.channel.alternatives[0].transcript
-
-            print (result)
-            
-            if not result.speech_final:
-                transcript_collector.add_part(sentence)
-            else:
-                # This is the final part of the current sentence
-                transcript_collector.add_part(sentence)
-                full_sentence = transcript_collector.get_full_transcript()
-                print(f"speaker: {full_sentence}")
-                content = full_sentence.strip()
-                await process_with_groq(content)
-                # Reset the collector for the next sentence
-                transcript_collector.reset()
 
         async def on_error(self, error, **kwargs):
             print(f"\n\n{error}\n\n")
 
-        dg_connection.on(LiveTranscriptionEvents.Transcript, on_message)
+        dg_connection.on(LiveTranscriptionEvents.Transcript, chat_response)
         dg_connection.on(LiveTranscriptionEvents.Error, on_error)
 
         options = LiveOptions(
@@ -101,25 +112,15 @@ async def get_transcript():
 
         silence_duration = 0
         silence_threshold = 20
+        shutdown_keywords = ["bye", "goodbye"]
 
         while silence_duration < silence_threshold:
-            if transcript_collector.transcription_complete:
-                transcription_complete.clear()
-                silence_duration += 1
-                full_transcript = transcript_collector.get_full_transcript()
-                transcript_collector.reset()
-                print(f"Final Transcript to send to Groq: {full_transcript}")
-                shutdown_keywords = ["bye", "goodbye"]
-
-                # Process the full transcript
-                content = full_transcript
-                print(f"content {content}")
-
-                await process_with_groq(content)
-                
-                if any(keyword in content.lower() for keyword in shutdown_keywords):
-                    print("Shutdown keyword detected. Exiting...")
-                    break
+            silence_duration += 1
+            full_transcript = transcript_collector.get_full_transcript()
+            
+            if any(keyword in full_transcript.lower() for keyword in shutdown_keywords):
+                print("Shutdown keyword detected. Exiting...")
+                break
 
             await asyncio.sleep(1)
 
@@ -127,6 +128,10 @@ async def get_transcript():
 
     except Exception as e:
         print(f"Could not open socket: {e}")
+    except KeyboardInterrupt:
+        print(f"Keyboard force quit.")
+
+
 
 
 
@@ -138,5 +143,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
     finally:
+        loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
 
