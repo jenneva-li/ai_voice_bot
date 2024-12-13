@@ -55,10 +55,12 @@ async def get_transcript():
     try:
         config = DeepgramClientOptions(options={"keepalive": "true"})
         deepgram: DeepgramClient = DeepgramClient(DEEPGRAM_API_KEY, config)
+        
 
         # dg_connection = deepgram.listen.asyncwebsocket.v("1")
         dg_connection = deepgram.listen.asynclive.v("1")
         print ("Listening...")
+
 
         async def on_message(self, result, **kwargs):
             sentence = result.channel.alternatives[0].transcript
@@ -72,6 +74,8 @@ async def get_transcript():
                 transcript_collector.add_part(sentence)
                 full_sentence = transcript_collector.get_full_transcript()
                 print(f"speaker: {full_sentence}")
+                content = full_sentence.strip()
+                await process_with_groq(content)
                 # Reset the collector for the next sentence
                 transcript_collector.reset()
 
@@ -90,14 +94,13 @@ async def get_transcript():
             sample_rate=16000,
             endpointing=True
         )
-
         await dg_connection.start(options)
 
         microphone = Microphone(dg_connection.send)
         microphone.start()
 
         silence_duration = 0
-        silence_threshold = 10
+        silence_threshold = 20
 
         while silence_duration < silence_threshold:
             if transcript_collector.transcription_complete:
