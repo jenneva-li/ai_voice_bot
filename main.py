@@ -124,7 +124,6 @@ async def get_transcript():
 
         silence_duration = 0
         silence_threshold = 20
-        shutdown_keywords = ["bye", "goodbye"]
 
         while silence_duration < silence_threshold:
             silence_duration += 1   
