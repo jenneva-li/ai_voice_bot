@@ -33,9 +33,14 @@ class TranscriptCollector:
 transcript_collector = TranscriptCollector()
 
 async def shutdown(dg_connection, microphone):
-    await microphone.finish()
-    await dg_connection.finish()
-    print("Shutdown complete.")
+    try:
+        print("Shutting down...")
+        microphone.finish()  # Make sure to finish microphone
+        await dg_connection.finish()  # Ensure Deepgram connection is finished
+        print("Shutdown complete.")
+    except Exception as e:
+        print(f"Error during shutdown: {e}")
+
 
 async def process_with_groq(content):
     attempts = 3
@@ -61,8 +66,8 @@ def search_google(query):
 
 async def chat_response(self, result, **kwargs):
     sentence = result.channel.alternatives[0].transcript
-
-    print (result)
+    if not sentence.strip(): 
+        return
     
     if not result.speech_final:
         transcript_collector.add_part(sentence)
@@ -70,6 +75,13 @@ async def chat_response(self, result, **kwargs):
         transcript_collector.add_part(sentence)
         full_sentence = transcript_collector.get_full_transcript()
         print(f"speaker: {full_sentence}")
+
+        if any(keyword in full_sentence.lower() for keyword in ["bye", "goodbye"]):
+            print("Shutdown keyword detected. Exiting...")
+            await shutdown(self.dg_connection, self.microphone)
+            await self.websocket.close()
+            return
+        
         if "open google" in full_sentence.lower():
                 open_google()
         elif "search" in full_sentence.lower():
@@ -115,13 +127,7 @@ async def get_transcript():
         shutdown_keywords = ["bye", "goodbye"]
 
         while silence_duration < silence_threshold:
-            silence_duration += 1
-            full_transcript = transcript_collector.get_full_transcript()
-            
-            if any(keyword in full_transcript.lower() for keyword in shutdown_keywords):
-                print("Shutdown keyword detected. Exiting...")
-                break
-
+            silence_duration += 1   
             await asyncio.sleep(1)
 
         await shutdown(dg_connection, microphone)
@@ -130,10 +136,6 @@ async def get_transcript():
         print(f"Could not open socket: {e}")
     except KeyboardInterrupt:
         print(f"Keyboard force quit.")
-
-
-
-
 
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
