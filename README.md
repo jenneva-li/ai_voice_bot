@@ -8,7 +8,9 @@ The AI Voice Bot aim to deliver voice-to-text conversational AI experiences. It 
 
 ## Demo Video[![](https://raw.githubusercontent.com/aregtech/areg-sdk/master/docs/img/pin.svg)](#demo)
 
-Sound On!
+Sound on 🔊!
+
+Before watching the demo, it's important to note that the bot's capabilities go beyond what is shown. While the video highlights tasks like answering prompts such as "How to bake cookies?", launching applications, and performing Google searches, the bot is designed to handle a wide range of commands and interactions, demonstrating its versatility and potential for customization.
 
 https://github.com/user-attachments/assets/6e3815d6-3cb6-43fe-8a41-f0e45d3266d4
 
