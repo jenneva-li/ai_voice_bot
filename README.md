@@ -6,8 +6,9 @@ The AI Voice Bot aim to deliver voice-to-text conversational AI experiences. It 
 
 ---
 
-## Design[![](https://raw.githubusercontent.com/aregtech/areg-sdk/master/docs/img/pin.svg)](#design)
+## Demo Video[![](https://raw.githubusercontent.com/aregtech/areg-sdk/master/docs/img/pin.svg)](#demo)
 
+https://github.com/user-attachments/assets/6e3815d6-3cb6-43fe-8a41-f0e45d3266d4
 
 ---
 <div align="right">[ <a href="#introduction">↑ Back to top ↑</a> ]</div>
