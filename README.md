@@ -15,7 +15,6 @@ Before watching the demo, it's important to note that the bot's capabilities go 
 https://github.com/user-attachments/assets/6e3815d6-3cb6-43fe-8a41-f0e45d3266d4
 
 ---
-<div align="right">[ <a href="#introduction">↑ Back to top ↑</a> ]</div>
 
 ## Installation and Setup
 1. Clone the repository:
@@ -29,3 +28,7 @@ https://github.com/user-attachments/assets/6e3815d6-3cb6-43fe-8a41-f0e45d3266d4
 3. Set up environment variables:
    - GROQ_API_KEY: Your Groq API key.
    - DEEPGRAM_API_KEY: Your Deepgram API key.
+     
+---
+
+<div align="right">[ <a href="#introduction">↑ Back to top ↑</a> ]</div>
