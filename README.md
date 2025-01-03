@@ -16,3 +16,16 @@ https://github.com/user-attachments/assets/6e3815d6-3cb6-43fe-8a41-f0e45d3266d4
 
 ---
 <div align="right">[ <a href="#introduction">↑ Back to top ↑</a> ]</div>
+
+## Installation and Setup
+1. Clone the repository:
+   ```bash
+   git clone [repository-url]
+   ```
+2. Install required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Set up environment variables:
+   - GROQ_API_KEY: Your Groq API key.
+   - DEEPGRAM_API_KEY: Your Deepgram API key.
